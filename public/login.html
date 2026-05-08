@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>Login</h1>
+    <input id="email" placeholder="Email"><br>
+    <input id="pass" type="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <p id="result"></p>
+    <a href="/signup.html">No account? Signup</a>
+
+    <div id="tokenBox" style="display:none; margin-top:20px; padding:10px; background:#f0f0f0; word-break:break-all;">
+        <strong>🔑 Your JWT Token:</strong><br>
+        <span id="tokenValue"></span><br><br>
+        <strong>📋 This token is used for authentication</strong>
+    </div>
+
+    <script>
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pass').value;
+
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+            const result = document.getElementById('result');
+
+            if (data.token) {
+                // Save token
+                localStorage.setItem('token', data.token);
+
+                // SHOW THE TOKEN
+                document.getElementById('tokenValue').innerText = data.token;
+                document.getElementById('tokenBox').style.display = 'block';
+
+                result.innerHTML = '✅ Login successful! <a href="/notes.html">Go to My Notes</a>';
+                result.style.color = 'green';
+            } else {
+                result.innerHTML = '❌ ' + data.error;
+                result.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h1>My Notes (Protected Page)</h1>
+
+    <div id="noteForm">
+        <input id="title" placeholder="Title"><br>
+        <input id="content" placeholder="Content"><br>
+        <button onclick="createNote()">Add Note</button>
+
+    </div>
+
+    <h3>Your Notes:</h3>
+    <div id="notes"></div>
+    <br>
+    <button onclick="logout()">Logout</button>
+    <button onclick="getProfile()">Get My Profile (/me)</button>
+    <div id="profile"></div>
+
+    <script>
+        async function getProfile() {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/me', {
+                headers: { 'Authorization': token }
+            });
+            const data = await res.json();
+            profile.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+    </script>
+    <script>
+        const token = localStorage.getItem('token');// ← READS the SAME token
+
+        if (!token) {
+            document.body.innerHTML = '<h1>Access Denied</h1><p>Please <a href="/login.html">Login</a> first</p>';
+        }
+
+        async function createNote() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            const res = await fetch('/notes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ title, content })
+            });
+            const data = await res.json();
+            if (data.message) {
+                getNotes();
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+            } else {
+                alert(data.error);
+            }
+        }
+
+        async function getNotes() {
+            const res = await fetch('/notes', {
+                headers: { 'Authorization': token }
+            });
+            const data = await res.json();
+
+            const notesDiv = document.getElementById('notes');
+            if (data.notes && data.notes.length > 0) {
+                notesDiv.innerHTML = data.notes.map(n =>
+                    `<div><strong>${n.title}</strong>: ${n.content}</div>`
+                ).join('');
+            } else {
+                notesDiv.innerHTML = 'No notes yet. Create one above!';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            location.href = '/login.html';
+        }
+
+        if (token) {
+            getNotes();
+        }
+    </script>
+</body>
+
+</html>
