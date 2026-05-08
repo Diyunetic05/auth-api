@@ -195,14 +195,13 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// ========== IMPORTANT FOR RENDER DEPLOYMENT ==========
-// Only start server if this file is run directly (not in test)
+// Export for testing
+module.exports = app;
+
+// Only start server if this file is run directly
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
 }
-
-// Export for testing
-module.exports = app;
