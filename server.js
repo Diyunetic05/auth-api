@@ -62,17 +62,6 @@ app.post('/signup', async (req, res) => {
     if (password.length < 6) {
         return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
-    if (!/[A-Z]/.test(password)) {
-        return res.status(400).json({
-            error: 'Password must contain at least one uppercase letter'
-        });
-    }
-
-    if (!/[0-9]/.test(password)) {
-        return res.status(400).json({
-            error: 'Password must contain at least one number'
-        });
-    }
 
     db.get('SELECT COUNT(*) as count FROM users', [], async (err, result) => {
         if (err) return res.status(500).json({ error: 'Database error' });
@@ -206,9 +195,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Export app for testing
-module.exports = app;
-
+// ========== IMPORTANT FOR RENDER DEPLOYMENT ==========
 // Only start server if this file is run directly (not in test)
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
@@ -216,4 +203,6 @@ if (require.main === module) {
         console.log(`Server running on port ${PORT}`);
     });
 }
+
+// Export for testing
 module.exports = app;
